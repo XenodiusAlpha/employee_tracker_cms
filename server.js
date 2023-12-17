@@ -11,6 +11,23 @@ function quit() {
     process.exit(0);
 }
 
+async function next(){
+    const input = await prompt([{
+        type:'confirm',
+        name:'confirmation',
+        message:'Return back to main menu?',
+    }]
+    ).then(( res)=>{
+        if(res.confirmation){
+            //run the loadingPrompt
+            LoadMainPrompts();
+        }
+        else{
+            process.exit(0)
+        }
+    })
+}
+
 function LoadMainPrompts() {
     prompt([
         {
@@ -84,4 +101,58 @@ function LoadMainPrompts() {
                         quit();
                 }
         })
+}
+
+function addEmployee() {
+    prompt([{
+        type:'input',
+        name:'firstName',
+        message:'What is the employee first name'
+    },{
+        type:'input',
+        name:'lastName',
+        message:'What is the employee last name'
+    }]).then(res=>{
+        let firstName = res.firstName;
+        let lastName = res.lastName;
+
+        const sql = `SELECT role.id, role.title, 
+        department.name AS department, 
+        role.salary 
+        FROM role 
+        LEFT JOIN department ON role.department_id = department.id`;
+
+            db.query(sql, res,(error,result)=>{
+               
+                console.log('query', result)
+                const roleChoice = result.map(role =>({
+                    name:`${role.title} (${role.department}, Salary:${role.salary})`,
+                    value: role.id
+                }))
+                console.log('role', roleChoice)
+                prompt([{
+                    type:'list',
+                    name:'Role_Id',
+                    message:'Pick a role',
+                    choices:roleChoice
+                }]).then( roleResult =>{
+                    const newEmployeeWithRoles = {
+                        first_name:firstName,
+                        last_name:lastName,
+                        role_id:roleResult.Role_Id
+                    }
+
+                    const insertSQL = "INSERT INTO employee SET ?";
+
+                    db.query(insertSQL, newEmployeeWithRoles,(err,res)=>{
+                        if(err){
+                            console.log('we hit an error')
+                        }else{
+                            console.log('added')
+                            next();
+                        }
+                    })
+                })
+            })
+    })
 }
