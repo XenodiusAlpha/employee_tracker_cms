@@ -107,9 +107,23 @@ function LoadMainPrompts() {
 
 // }
 
-// function viewAllRoles() {
-
-// }
+function viewAllRoles() {
+    const viewSQL = `SELECT role.id,
+                            role.title,
+                            department.name as department,
+                            role.salary
+                            FROM role
+                            LEFT JOIN department ON role.department_id = department.id;
+                    `;
+    db.query(viewSQL, (err,res)=>{
+        if(err){
+            console.log('we hit an error')
+        }else{
+            console.table(res);
+            next();
+        }
+    })
+}
 
 function viewAllEmployees() {
     const viewSQL = `SELECT employee.id, 
@@ -151,7 +165,7 @@ function addDepartment() {
         const newDepartment = {
             name:departmentName
         }
-        const insertSQL = `INSERT INTO department SET ?`;
+        const insertSQL = `INSERT INTO department SET ?;`;
         db.query(insertSQL, newDepartment,(err,res)=>{
             if(err){
                 console.log('we hit an error')
@@ -193,7 +207,7 @@ function addRole() {
         let roleName = res.roleName;
         let roleSalary = res.roleSalary;
         const sql = `SELECT *
-        FROM department`;
+        FROM department;`;
             db.query(sql, res, (error,result)=>{
                 const departmentChoice = result.map(department =>({
                     name:`${department.name}`,
@@ -211,7 +225,7 @@ function addRole() {
                         department_id:departmentResult.Department_Id
                     }
 
-                    const insertSQL = "INSERT INTO role SET ?";
+                    const insertSQL = "INSERT INTO role SET ?;";
 
                     db.query(insertSQL, newRoleWithDepartments,(err,res)=>{
                         if(err){
@@ -239,11 +253,13 @@ function addEmployee() {
         let firstName = res.firstName;
         let lastName = res.lastName;
 
-        const sql = `SELECT role.id, role.title, 
-        department.name AS department, 
-        role.salary 
-        FROM role 
-        LEFT JOIN department ON role.department_id = department.id`;
+        const sql = `SELECT role.id, 
+                            role.title, 
+                            department.name AS department, 
+                            role.salary 
+                            FROM role 
+                            LEFT JOIN department ON role.department_id = department.id;
+                    `;
 
             db.query(sql, res,(error,result)=>{
                 const roleChoice = result.map(role =>({
