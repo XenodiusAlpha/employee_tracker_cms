@@ -103,6 +103,37 @@ function LoadMainPrompts() {
         })
 }
 
+function addDepartment() {
+    prompt([{
+        type:'input',
+        name:'departmentName',
+        message:'What is the name of the department?',
+        validate: (departmentNameInput) => {
+            if (departmentNameInput) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+    }]).then(res=>{
+        let departmentName = res.departmentName;
+        const newDepartment = {
+            name:departmentName
+        }
+        const insertSQL = "INSERT INTO department SET ?";
+        db.query(insertSQL, newDepartment,(err,res)=>{
+            if(err){
+                console.log('we hit an error')
+            }else{
+                console.log('added')
+                console.log('yo', res);
+                next();
+            }
+        })
+    })
+}
+
+
 function addRole() {
     prompt([{
         type:'input',
@@ -134,6 +165,7 @@ function addRole() {
         const sql = `SELECT *
         FROM department`;
             db.query(sql, res, (error,result)=>{
+                console.log(result);
                 const departmentChoice = result.map(department =>({
                     name:`${department.name}`,
                     value: department.id
