@@ -103,6 +103,37 @@ function LoadMainPrompts() {
         })
 }
 
+// function viewAllDepartments() {
+
+// }
+
+// function viewAllRoles() {
+
+// }
+
+function viewAllEmployees() {
+    const viewSQL = `SELECT employee.id, 
+                            employee.first_name, 
+                            employee.last_name, 
+                            role.title as title,
+                            department.name as department,
+                            role.salary as salary,
+                            CONCAT(manager.first_name, ' ', manager.last_name) as manager
+                            FROM employee
+                            LEFT JOIN role ON employee.role_id = role.id
+                            LEFT JOIN department ON role.department_id = department.id
+                            LEFT JOIN employee manager ON manager.id = employee.manager_id;
+                    `;
+    db.query(viewSQL, (err,res)=>{
+        if(err){
+            console.log('we hit an error')
+        }else{
+            console.table(res);
+            next();
+        }
+    })
+}
+
 function addDepartment() {
     prompt([{
         type:'input',
@@ -120,13 +151,12 @@ function addDepartment() {
         const newDepartment = {
             name:departmentName
         }
-        const insertSQL = "INSERT INTO department SET ?";
+        const insertSQL = `INSERT INTO department SET ?`;
         db.query(insertSQL, newDepartment,(err,res)=>{
             if(err){
                 console.log('we hit an error')
             }else{
                 console.log('added')
-                console.log('yo', res);
                 next();
             }
         })
@@ -165,7 +195,6 @@ function addRole() {
         const sql = `SELECT *
         FROM department`;
             db.query(sql, res, (error,result)=>{
-                console.log(result);
                 const departmentChoice = result.map(department =>({
                     name:`${department.name}`,
                     value: department.id
@@ -247,3 +276,7 @@ function addEmployee() {
             })
     })
 }
+
+// function updateEmployeeRole() {
+
+// }
