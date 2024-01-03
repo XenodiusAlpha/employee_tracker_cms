@@ -103,9 +103,20 @@ function LoadMainPrompts() {
         })
 }
 
-// function viewAllDepartments() {
-
-// }
+function viewAllDepartments() {
+    const viewSQL = `SELECT department.id,
+                            department.name
+                            FROM department;
+                    `;
+    db.query(viewSQL, (err,res)=>{
+        if(err){
+        console.log('we hit an error')
+        }else{
+        console.table(res);
+        next();
+        }
+    })
+}
 
 function viewAllRoles() {
     const viewSQL = `SELECT role.id,
