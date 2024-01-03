@@ -103,15 +103,77 @@ function LoadMainPrompts() {
         })
 }
 
+function addRole() {
+    prompt([{
+        type:'input',
+        name:'roleName',
+        message:'What is the name of the role?',
+        validate: (roleNameInput) => {
+            if (roleNameInput) {
+                return true;
+            } else {
+                console.log("Please enter a role name");
+                return false;
+            }
+        },
+    },{
+        type:'input',
+        name:'roleSalary',
+        message:'What is the salary of the role?',
+        validate: (roleSalaryInput) => {
+            if (roleSalaryInput) {
+                return true;
+            } else {
+                console.log("Please enter a role name");
+                return false;
+            }
+        },
+    }]).then(res=>{
+        let roleName = res.roleName;
+        let roleSalary = res.roleSalary;
+        const sql = `SELECT *
+        FROM department`;
+            db.query(sql, res, (error,result)=>{
+                const departmentChoice = result.map(department =>({
+                    name:`${department.name}`,
+                    value: department.id
+                }))
+                prompt ([{
+                    type:'list',
+                    name:'Department_Id',
+                    message:'Pick a department',
+                    choices:departmentChoice
+                }]).then( departmentResult => {
+                    const newRoleWithDepartments = {
+                        title:roleName,
+                        salary:roleSalary,
+                        department_id:departmentResult.Department_Id
+                    }
+
+                    const insertSQL = "INSERT INTO role SET ?";
+
+                    db.query(insertSQL, newRoleWithDepartments,(err,res)=>{
+                        if(err){
+                            console.log('we hit an error')
+                        }else{
+                            console.log('added')
+                            next();
+                        }
+                    })
+                })
+            })
+    })
+}
+
 function addEmployee() {
     prompt([{
         type:'input',
         name:'firstName',
-        message:'What is the employee first name'
+        message:"What is the employee's first name?"
     },{
         type:'input',
         name:'lastName',
-        message:'What is the employee last name'
+        message:"What is the employee's last name"
     }]).then(res=>{
         let firstName = res.firstName;
         let lastName = res.lastName;
@@ -123,13 +185,10 @@ function addEmployee() {
         LEFT JOIN department ON role.department_id = department.id`;
 
             db.query(sql, res,(error,result)=>{
-               
-                console.log('query', result)
                 const roleChoice = result.map(role =>({
                     name:`${role.title} (${role.department}, Salary:${role.salary})`,
                     value: role.id
                 }))
-                console.log('role', roleChoice)
                 prompt([{
                     type:'list',
                     name:'Role_Id',
