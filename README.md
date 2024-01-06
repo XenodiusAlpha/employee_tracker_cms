@@ -38,6 +38,22 @@ A command-line application that allows business owners to efficiently view and m
 ```bash
     npm install
 ```
+4. Navigate to the `db` folder, run the database, and seed the database.
+```bash
+    cd db
+    mysql -u root -p
+    Enter Password: ***Your password here***
+    SOURCE schema.sql;
+    SOURCE seed.sql;
+    exit
+```
+5. Navigate to root directory, and create pass.js file.
+6. Set up your password for the connection.
+```
+const pass = "YOUR PASSWORD HERE";
+
+module.exports = pass;
+```
 
 ## Usage
 
@@ -84,7 +100,7 @@ Select this option to update an employee's role. You will be prompted to select 
 ![Add_example](./screenshots/add.png)
 
 ## Video Link
-
+https://drive.google.com/file/d/1R5nPgsLOPYWXcuWaSSCfqaBR1EAyVK-9/view?usp=sharing
 
 ## License
 
